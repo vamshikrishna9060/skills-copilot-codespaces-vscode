@@ -1,0 +1,14 @@
+=== QUESTION 1: THE PASSWD PROBLEM ===
+`/usr/bin/passwd` is SUID root (4755). Mtime 2024-05-30, but ctime/birth 2025-12-06 suggests recent reinstallation or change; verify package integrity (`dpkg -V passwd`, checksum vs distro). Any vulnerability or tampering here could enable privilege escalation.
+
+=== QUESTION 2: THE ATTACK SURFACE ===
+Observed SUID roots: sudo, su, mount, umount, chsh, chfn, newgrp, gpasswd, passwd. Each is a potential priv-esc vector; keep packages updated, ensure no world-writable paths or PATH hijack risks, and minimize SUID footprint where not needed.
+
+=== QUESTION 3: /tmp DIRECTORY ===
+/tmp is world-writable with sticky bit set (expected). Contents include IPC sockets and logs. Risks: symlink/race attacks with predictable filenames. Mitigate with safe temp creation (mkstemp), avoid predictable names, and mount /tmp with noexec/nodev/nosuid where possible.
+
+=== QUESTION 4: ARCHITECTURE DECISION ===
+Prefer capabilities over SUID where feasible; strip SUID from unused tools. Harden sudo with least-privilege rules (no wildcards/passwordless unless required). Make package integrity checks part of baseline to catch unexpected binary changes.
+
+=== QUESTION 5: DETECTION STRATEGY ===
+Use file integrity monitoring on SUID/SGID binaries (aide/osquery/tripwire or dpkg -V alerts). Alert on new/changed SUID/SGID files and chmod 47** events. Audit executions of passwd/sudo/su/mount (auditd/ebpf). Monitor /tmp for suspicious symlinks or bursts of executable creations.
