@@ -1,0 +1,50 @@
+Task 5.3: Cloud Monitoring & Logging
+
+1) Importance of Cloud Monitoring
+Cloud monitoring helps detect:
+- Unauthorized access attempts
+- Suspicious API activity
+- Resource misuse
+- Configuration changes
+
+Without monitoring, cloud attacks often remain undetected for months.
+
+2) Cloud Logging Sources
+Common cloud logs include:
+- IAM audit logs (authentication & authorization events)
+- API activity logs
+- Network flow logs
+- Storage access logs
+- Compute instance logs
+
+Examples:
+- AWS CloudTrail
+- Azure Monitor
+- Google Cloud Audit Logs
+
+3) What to Monitor
+Security teams should monitor:
+- Failed login attempts
+- Privilege escalation events
+- Policy changes
+- New key or user creation
+- Unusual data downloads
+
+4) Alerting & Detection
+Monitoring alone is not enough.
+Alerts should trigger when:
+- High-risk actions occur
+- Thresholds are exceeded
+- Known attack patterns appear
+
+SIEM tools help correlate logs across services.
+
+5) Best Practices
+- Enable logging for all regions
+- Store logs securely and immutably
+- Apply least-privilege access to logs
+- Regularly review alerts and dashboards
+- Integrate logs with SIEM
+
+Conclusion:
+Effective monitoring and logging are essential for detecting, responding to, and preventing cloud security incidents.
