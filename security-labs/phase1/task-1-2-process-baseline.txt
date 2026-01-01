@@ -1,0 +1,18 @@
+Task 1.2 – Process Baseline Analysis
+
+Commands Used:
+ps aux
+top
+htop (if available)
+
+Analysis:
+I collected a baseline of running processes on the system to understand normal behavior.
+Most processes belong to system services, user shell sessions, and Codespaces components.
+No suspicious or unknown processes were observed during baseline collection.
+
+Security Importance:
+Maintaining a process baseline helps in detecting anomalies such as malware, backdoors,
+or unauthorized services running on the system.
+
+Conclusion:
+This baseline will be used for future comparison during incident response or threat hunting.

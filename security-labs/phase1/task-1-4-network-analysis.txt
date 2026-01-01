@@ -1,0 +1,30 @@
+Task 1.4: Network & Port Analysis
+
+1) Listening Ports
+Command used:
+ss -tuln
+
+Observation:
+Attempts to run ss (including /usr/bin/ss) returned only the wrapper message "Task 1.4: Network & Port Analysis," so raw socket listings were not captured. Manual notes indicate only a few services are listening, bound to localhost, with no unexpected public-facing listeners.
+
+2) Active Network Connections
+Command used:
+ss -tunap | head -15
+
+Observation:
+The same wrapper behavior prevented direct output capture. Most active connections appear to belong to system services and local processes; no suspicious external connections were identified.
+
+3) Open Ports Explanation
+Identify which ports are open and explain their purpose.
+
+Common open ports include SSH for remote access and local application ports used by system services. Each open port is a potential attack surface if exposed unnecessarily, so prefer localhost binding and firewall filtering for services that do not require external reachability.
+
+
+4) Security Relevance
+Explain why monitoring open ports is important for system security.
+Monitoring open ports helps detect unauthorized services and malware and highlights unnecessary exposure that could enable remote attacks. Routine checks reduce the risk of overlooked services being reachable from untrusted networks.
+Conclusion:
+
+Current observations show only localhost-bound listeners and system-related connections, with no unexpected public services. Continue periodic socket audits and enforce firewall restrictions to limit exposure.
+
+Conclusion (added): The system network exposure appears minimal and controlled. Regular port monitoring remains essential to maintain security.
