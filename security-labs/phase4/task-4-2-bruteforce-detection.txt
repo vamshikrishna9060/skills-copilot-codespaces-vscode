@@ -1,0 +1,113 @@
+TASK 4.2 – BRUTE FORCE DETECTION LOGIC
+
+ROLE CONTEXT
+-------------
+You are a SOC Detection Engineer.
+Your task is to design logic that detects SSH brute force attacks
+using authentication logs.
+
+This logic will later be converted into SIEM rules.
+
+------------------------------------------------------------
+SECTION 1: WHAT IS A BRUTE FORCE ATTACK?
+------------------------------------------------------------
+
+A brute force attack is repeated authentication attempts
+against a user or system until credentials are guessed.
+
+In SSH attacks, this often appears as:
+- Many failed login attempts
+- Same IP targeting multiple users
+- Rapid attempts in short time windows
+
+------------------------------------------------------------
+SECTION 2: LOG SIGNALS USED
+------------------------------------------------------------
+
+Primary log source:
+- /var/log/auth.log
+
+Relevant log events:
+- "Failed password"
+- "Invalid user"
+- "Accepted password"
+
+Each log line contains:
+- Timestamp
+- Source IP
+- Username
+- Service (sshd)
+
+------------------------------------------------------------
+SECTION 3: DETECTION LOGIC (CORE)
+------------------------------------------------------------
+
+Brute force detection logic:
+
+IF:
+- Failed login attempts > 5
+- FROM same source IP
+- WITHIN 5 minutes
+
+THEN:
+- Trigger HIGH severity alert
+
+Alternate logic:
+- Failed attempts across multiple users
+- From same IP
+- Indicates credential stuffing
+
+------------------------------------------------------------
+SECTION 4: FALSE POSITIVE CONSIDERATIONS
+------------------------------------------------------------
+
+Legitimate failures may occur due to:
+- User forgot password
+- Automated scripts
+- Configuration mistakes
+
+To reduce false positives:
+- Exclude trusted IP ranges
+- Correlate with successful login events
+- Require time-based thresholds
+
+------------------------------------------------------------
+SECTION 5: RESPONSE PLAYBOOK
+------------------------------------------------------------
+
+Upon detection:
+
+Immediate actions:
+- Block source IP
+- Lock affected user account
+- Notify SOC team
+
+Follow-up actions:
+- Review affected logs
+- Force password reset
+- Check for privilege escalation
+- Preserve logs for forensics
+
+------------------------------------------------------------
+SECTION 6: ARCHITECT DESIGN VIEW
+------------------------------------------------------------
+
+As a security architect:
+- This rule belongs in SIEM
+- Alerts should feed into SOAR
+- Automatic blocking via firewall/fail2ban
+- Metrics tracked for attack trends
+
+This turns logs into defense.
+
+------------------------------------------------------------
+FINAL SUMMARY
+------------------------------------------------------------
+
+This task demonstrates:
+- How detection rules are built
+- Why thresholds matter
+- How attackers behave
+- How SOC responds effectively
+
+Detection is logic, not tools.
