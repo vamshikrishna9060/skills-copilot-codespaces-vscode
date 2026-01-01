@@ -1,0 +1,104 @@
+TASK 4.4 – LATERAL MOVEMENT DETECTION
+
+ROLE CONTEXT
+-------------
+You are a SOC Detection Engineer in an enterprise environment.
+Your goal is to detect attackers moving between systems
+after initial access.
+
+------------------------------------------------------------
+SECTION 1: WHAT IS LATERAL MOVEMENT?
+------------------------------------------------------------
+
+Lateral movement is when an attacker uses one compromised
+system to access additional systems in the network.
+
+This phase typically follows:
+- Initial Access
+- Privilege Escalation
+
+------------------------------------------------------------
+SECTION 2: COMMON LATERAL MOVEMENT TECHNIQUES
+------------------------------------------------------------
+
+Common techniques include:
+- SSH using stolen credentials
+- Pass-the-hash attacks
+- Remote command execution
+- Abuse of admin shares
+- Exploiting trust relationships
+
+------------------------------------------------------------
+SECTION 3: LOG SOURCES FOR DETECTION
+------------------------------------------------------------
+
+Critical log sources:
+- SSH authentication logs
+- Network connection logs
+- Endpoint security logs
+- Authentication event logs
+
+Key indicators:
+- Multiple SSH connections in short time
+- Logins from unusual source hosts
+- Same credentials used across systems
+- Access outside normal working hours
+
+------------------------------------------------------------
+SECTION 4: DETECTION RULE LOGIC
+------------------------------------------------------------
+
+Trigger alerts when:
+
+- One user authenticates to multiple hosts rapidly
+- Successful login follows multiple failures
+- New SSH keys are added
+- Privileged accounts log in from non-admin machines
+
+------------------------------------------------------------
+SECTION 5: FALSE POSITIVE REDUCTION
+------------------------------------------------------------
+
+Legitimate activity:
+- Admin maintenance
+- Automation scripts
+- Configuration management tools
+
+Mitigation:
+- Baseline admin login patterns
+- Whitelist automation accounts
+- Correlate with change windows
+
+------------------------------------------------------------
+SECTION 6: INCIDENT RESPONSE ACTIONS
+------------------------------------------------------------
+
+Immediate response:
+- Isolate affected hosts
+- Disable compromised credentials
+- Terminate active sessions
+
+Investigation:
+- Identify initial access point
+- Map attacker movement path
+- Check for persistence mechanisms
+
+------------------------------------------------------------
+SECTION 7: ARCHITECTURE CONTROLS
+------------------------------------------------------------
+
+Preventive controls:
+- Network segmentation
+- Zero Trust architecture
+- MFA for internal systems
+- Privileged Access Management (PAM)
+
+------------------------------------------------------------
+FINAL SUMMARY
+------------------------------------------------------------
+
+Lateral movement is how small breaches become
+full-domain compromises.
+
+Early detection stops attackers before
+they reach critical assets.
