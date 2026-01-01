@@ -1,0 +1,43 @@
+Task 3.3: Incident Response Basics
+
+Objective:
+To understand the fundamentals of incident response and how organizations react to security incidents.
+
+1) What is an Incident?
+A security incident is any event that compromises the confidentiality, integrity, or availability of systems or data.
+
+2) Examples of Security Incidents
+- Malware infection
+- Unauthorized access
+- Data breach
+- Denial of Service (DoS)
+- Phishing attack
+
+3) Incident Response Lifecycle
+- Preparation
+- Identification
+- Containment
+- Eradication
+- Recovery
+- Lessons Learned
+
+4) Preparation
+Includes creating policies, incident response plans, training teams, and setting up monitoring tools.
+
+5) Identification
+Detecting and confirming that an incident has occurred using logs, alerts, and monitoring systems.
+
+6) Containment
+Limiting the spread or impact of the incident (e.g., isolating affected systems).
+
+7) Eradication
+Removing the root cause such as malware, malicious accounts, or vulnerabilities.
+
+8) Recovery
+Restoring systems to normal operation and monitoring for any signs of recurrence.
+
+9) Lessons Learned
+Reviewing the incident to improve future response and security controls.
+
+Conclusion:
+An effective incident response process minimizes damage, reduces recovery time, and strengthens an organization’s security posture.
