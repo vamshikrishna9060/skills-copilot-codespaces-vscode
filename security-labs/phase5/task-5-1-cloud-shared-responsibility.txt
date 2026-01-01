@@ -1,0 +1,138 @@
+TASK 5.1 – CLOUD SHARED RESPONSIBILITY MODEL
+Role: Cybersecurity Architect (Foundational Thinking)
+
+OBJECTIVE
+Understand who is responsible for security in cloud environments and why most real-world breaches happen due to misunderstanding responsibility boundaries.
+
+This task is NOT about AWS commands.
+This task is about ARCHITECTURAL THINKING.
+
+--------------------------------------------------
+1. WHAT IS THE SHARED RESPONSIBILITY MODEL?
+--------------------------------------------------
+
+The Cloud Shared Responsibility Model defines how security responsibilities are divided between:
+
+• Cloud Service Provider (AWS / Azure / GCP)
+• Customer (organization using the cloud)
+
+The provider secures the CLOUD.
+The customer secures what is IN the cloud.
+
+This separation exists because cloud providers cannot control customer configurations, identities, or data usage without violating isolation and trust.
+
+--------------------------------------------------
+2. RESPONSIBILITY SPLIT (INFRASTRUCTURE AS A SERVICE – IaaS)
+--------------------------------------------------
+
+CLOUD PROVIDER RESPONSIBILITIES:
+• Physical data center security
+• Hardware (servers, disks, networking)
+• Physical network infrastructure
+• Hypervisor and virtualization layer
+• Availability of cloud services
+
+CUSTOMER RESPONSIBILITIES:
+• Identity & Access Management (IAM)
+• Operating system configuration
+• Network security groups & firewalls
+• Application security
+• Data encryption & classification
+• Patch management (OS & apps)
+• Logging and monitoring configuration
+
+IMPORTANT:
+Most cloud breaches occur because customers assume the provider protects them from misconfiguration. This assumption is false.
+
+--------------------------------------------------
+3. REAL BREACH EXAMPLE – S3 BUCKET EXPOSURE
+--------------------------------------------------
+
+Scenario:
+An organization stores customer data in an S3 bucket.
+The bucket is configured as public.
+
+Who failed?
+
+NOT AWS.
+AWS provided access controls and warnings.
+The CUSTOMER misconfigured permissions.
+
+Root Cause:
+• Misunderstanding IAM policies
+• Lack of least-privilege design
+• No monitoring or alerting
+
+Architect Lesson:
+Security failures are usually permission failures.
+
+--------------------------------------------------
+4. WHY ARCHITECTS CARE (NOT TOOL USERS)
+--------------------------------------------------
+
+A tool user asks:
+“Which AWS service encrypts data?”
+
+An architect asks:
+“Who can access this data, from where, under what conditions, and how will I detect misuse?”
+
+Architect focus areas:
+• Trust boundaries
+• Identity flows
+• Permission inheritance
+• Blast radius of compromise
+• Logging and auditability
+
+--------------------------------------------------
+5. SHARED RESPONSIBILITY VS ON-PREMISE
+--------------------------------------------------
+
+On-Premise:
+• Organization owns EVERYTHING
+• Hardware to application
+• Full control, full responsibility
+
+Cloud:
+• Reduced infrastructure burden
+• Increased configuration risk
+• Faster mistakes at larger scale
+
+Architect takeaway:
+Cloud does not reduce responsibility.
+It shifts responsibility upward into identity, policy, and architecture decisions.
+
+--------------------------------------------------
+6. SECURITY PRINCIPLES CONNECTED
+--------------------------------------------------
+
+• Least Privilege – never grant broad access
+• Zero Trust – never trust network location
+• Defense in Depth – logging + IAM + network + encryption
+• Accountability – every action must be traceable
+
+--------------------------------------------------
+7. ARCHITECT SELF-CHECK (IMPORTANT)
+--------------------------------------------------
+
+I understand this task if I can explain:
+
+• Why AWS cannot protect me from my own IAM mistakes
+• Why “public by default” is dangerous
+• Why identity is the new security perimeter
+• Why cloud security failures scale faster than on-prem failures
+
+--------------------------------------------------
+SUMMARY (IN MY OWN WORDS)
+--------------------------------------------------
+
+Cloud security is not about tools.
+It is about responsibility boundaries.
+
+The provider secures the infrastructure.
+The customer secures identities, data, and configurations.
+
+Most cloud breaches are not hacks.
+They are design failures.
+
+As a future cybersecurity architect, my job is to design systems
+that remain secure even when humans make mistakes.
