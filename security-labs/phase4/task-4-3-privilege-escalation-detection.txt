@@ -1,0 +1,113 @@
+TASK 4.3 – PRIVILEGE ESCALATION DETECTION
+
+ROLE CONTEXT
+-------------
+You are a SOC Detection Engineer.
+Your task is to detect attempts to escalate privileges
+from a normal user to root or administrator.
+
+------------------------------------------------------------
+SECTION 1: WHAT IS PRIVILEGE ESCALATION?
+------------------------------------------------------------
+
+Privilege escalation occurs when an attacker gains higher
+permissions than originally assigned.
+
+Two types:
+- Vertical: user → root/admin
+- Horizontal: user → another user
+
+------------------------------------------------------------
+SECTION 2: COMMON ESCALATION METHODS
+------------------------------------------------------------
+
+Linux privilege escalation commonly involves:
+- Abusing SUID binaries
+- Misconfigured sudo rules
+- Kernel vulnerabilities
+- Writable system files
+- PATH hijacking
+
+------------------------------------------------------------
+SECTION 3: LOG SIGNALS TO MONITOR
+------------------------------------------------------------
+
+Primary log sources:
+- /var/log/auth.log
+- /var/log/syslog
+- sudo logs
+
+Indicators include:
+- sudo usage by non-admin users
+- Execution of SUID binaries
+- Sudden UID change (1000 → 0)
+- Access to /etc/shadow
+
+------------------------------------------------------------
+SECTION 4: DETECTION LOGIC
+------------------------------------------------------------
+
+Trigger alert if:
+
+- User runs sudo AND
+- Command is not in approved list
+
+OR
+
+- Execution of uncommon SUID binary
+
+OR
+
+- Modification of system files:
+  (/etc/passwd, /etc/shadow, /etc/sudoers)
+
+------------------------------------------------------------
+SECTION 5: FALSE POSITIVE HANDLING
+------------------------------------------------------------
+
+Legitimate cases:
+- System administrators
+- Scheduled maintenance
+- Automation tools
+
+Mitigation:
+- Baseline normal admin behavior
+- Whitelist known admin users
+- Monitor time-of-day anomalies
+
+------------------------------------------------------------
+SECTION 6: RESPONSE PLAYBOOK
+------------------------------------------------------------
+
+Immediate actions:
+- Suspend affected account
+- Terminate suspicious processes
+- Capture process and memory state
+
+Follow-up:
+- Review command history
+- Rotate credentials
+- Patch exploited vulnerability
+
+------------------------------------------------------------
+SECTION 7: ARCHITECT PERSPECTIVE
+------------------------------------------------------------
+
+Privilege escalation is a CRITICAL risk.
+
+Architect controls:
+- Least privilege enforcement
+- Remove unnecessary SUID binaries
+- PAM hardening
+- Kernel patching
+- Continuous monitoring
+
+------------------------------------------------------------
+FINAL SUMMARY
+------------------------------------------------------------
+
+This task shows how defenders detect privilege escalation
+before full system compromise.
+
+Architects design systems assuming escalation attempts
+WILL happen — detection decides survival.
