@@ -1,0 +1,63 @@
+ Task 1.3: Process & Service Analysis
+
+1) Process Ownership Analysis
+Command used:
+ps -eo pid,user,comm --sort=user | head -20
+
+Observation:
+Write what users are running processes and what you notice.
+
+2) Root-owned Processes
+Command used:
+ps -U root -u root u | head -15
+
+Observation:
+Explain why these processes need root privileges.
+
+3) Suspicious Process Check
+Command used:
+ps aux --sort=-%cpu | head -10
+
+Observation:
+Check for high CPU usage and note if anything looks suspicious.
+
+4) Background Services
+Command used:
+systemctl list-units --type=service --state=running | head -15
+
+Observation:
+List important services and their purpose.
+
+Conclusion:
+Explain how process and service analysis helps in security monitoring.Task 1.3: Process & Service Analysis
+
+1) Process Ownership Analysis
+Command used:
+ps -eo pid,user,comm --sort=user | head -20
+
+Observation:
+List which users are running processes and identify which user owns the majority of processes.
+
+2) Root-owned Processes
+Command used:
+ps -U root -u root u | head -15
+
+Observation:
+Identify critical root-owned services and explain why they must run as root.
+
+3) Suspicious Process Check
+Command used:
+ps aux --sort=-%cpu | head -10
+
+Observation:
+Check for unusual or unexpected processes consuming high CPU or memory.
+
+4) Background Services
+Command used:
+systemctl list-units --type=service --state=running | head -15
+
+Observation:
+List key running services and explain their purpose.
+
+Conclusion:
+Explain how understanding process ownership and services helps in detecting compromise.
