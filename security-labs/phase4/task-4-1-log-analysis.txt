@@ -1,0 +1,20 @@
+TASK 4.1 – SOC LOG ANALYSIS & THREAT THINKING
+
+ROLE CONTEXT
+-------------
+You are a SOC Analyst monitoring Linux authentication logs.
+Your job is to identify suspicious behavior, NOT just read logs.
+
+Logs tell stories.
+Your responsibility is to interpret them like an investigator.
+
+------------------------------------------------------------
+SECTION 1: WHAT ARE AUTH LOGS?
+------------------------------------------------------------
+
+Linux authentication logs record:
+- Successful logins
+- Failed login attempts
+- sudo usage
+- Privilege escalation attempts
+- SSH access events
