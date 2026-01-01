@@ -1,0 +1,68 @@
+Task 2.3: IDS, IPS & Security Monitoring
+
+1) IDS vs IPS Overview
+IDS (Intrusion Detection System):
+- Monitors network/system traffic
+- Detects suspicious or malicious activity
+- Generates alerts but does NOT block traffic
+- Examples: Snort (IDS mode), Suricata (IDS)
+
+IPS (Intrusion Prevention System):
+- Monitors traffic in real time
+- Detects AND blocks malicious activity
+- Acts inline with network traffic
+- Examples: Snort (IPS mode), Suricata (IPS), Palo Alto IPS
+
+Observation:
+IDS is used for visibility and alerting.
+IPS is used for active protection and threat prevention.
+
+--------------------------------------------------
+
+2) Host-based vs Network-based Monitoring
+
+Host-based Monitoring:
+- Runs on individual systems
+- Monitors logs, processes, file integrity
+- Example tools: OSSEC, Wazuh, auditd
+
+Network-based Monitoring:
+- Monitors network traffic
+- Detects scans, attacks, suspicious packets
+- Example tools: Snort, Suricata, Zeek
+
+Observation:
+Host-based tools provide deep system insight.
+Network-based tools provide broader attack visibility.
+
+--------------------------------------------------
+
+3) Log Monitoring & Analysis
+
+Common Logs:
+- Authentication logs
+- Firewall logs
+- Application logs
+- System logs
+
+Why Log Monitoring is Important:
+- Detects brute-force attacks
+- Identifies unauthorized access
+- Helps in forensic investigations
+- Required for compliance and audits
+
+--------------------------------------------------
+
+4) Security Relevance
+
+IDS/IPS and monitoring help to:
+- Detect attacks early
+- Reduce attack impact
+- Improve incident response
+- Strengthen overall security posture
+
+--------------------------------------------------
+
+Conclusion:
+IDS, IPS, and continuous monitoring are essential components of a secure system.
+They provide visibility, detection, and prevention against modern cyber threats.
