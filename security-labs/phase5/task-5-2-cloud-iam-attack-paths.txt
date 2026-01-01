@@ -1,0 +1,43 @@
+Task 5.2: Cloud IAM & Attack Paths
+
+1) IAM Fundamentals
+Identity and Access Management (IAM) controls who can access cloud resources and what actions they can perform.
+IAM is based on:
+- Users (human or service identities)
+- Roles (set of permissions)
+- Policies (rules defining allowed or denied actions)
+
+Misconfigured IAM is one of the biggest causes of cloud security breaches.
+
+2) Common IAM Misconfigurations
+- Over-privileged roles (using AdministratorAccess unnecessarily)
+- Wildcard permissions (*)
+- Unused or stale IAM users and keys
+- No MFA (Multi-Factor Authentication)
+- Publicly accessible service accounts
+
+3) Common Cloud Attack Paths
+An attacker may follow this path:
+- Compromise low-privileged credentials
+- Enumerate IAM permissions
+- Abuse role trust relationships
+- Escalate privileges
+- Access sensitive services (storage, databases, secrets)
+
+Example attack path:
+Compromised developer key → IAM role abuse → Access S3 / Cloud Storage → Data exfiltration
+
+4) Real-World Cloud Breach Examples
+- Public cloud storage exposed due to weak IAM policies
+- CI/CD service accounts leaked via GitHub
+- Over-permissive roles abused for crypto-mining
+
+5) Security Best Practices
+- Follow least privilege principle
+- Enable MFA for all users
+- Rotate access keys regularly
+- Use IAM roles instead of long-term keys
+- Monitor IAM logs and alerts
+
+Conclusion:
+Strong IAM configuration is critical to preventing cloud-based attack paths and data breaches.
