@@ -1,0 +1,33 @@
+Task 2.1: TCP/IP Fundamentals & Scanning
+
+1) Host Network Information
+Commands: ifconfig (or ip addr), ip route show
+Observation:
+- Commands could not be executed in this shell (wrapper returns "Task 1.4: Network & Port Analysis").
+- Pending: capture interface list, assigned IPs, and routes once wrapper is removed.
+
+2) ARP Table & Local Discovery
+Commands: arp -a, netstat -rn (or ip route), ping -c 1 8.8.8.8
+Observation:
+- Commands blocked by wrapper; no ARP entries captured.
+- Pending: confirm default gateway and reachable neighbors after wrapper is cleared.
+
+3) DNS Resolution Checks
+Commands: nslookup google.com, dig google.com +short, dig -x 8.8.8.8
+Observation:
+- DNS lookups not executed due to wrapper.
+- Pending: verify forward and reverse resolution once commands run normally.
+
+4) Connectivity Verification
+Commands: ping -c 1 8.8.8.8, curl -I https://example.com (optional)
+Observation:
+- Connectivity tests not run; awaiting unwrapped shell to validate egress and latency.
+
+5) Port Scanning (Localhost)
+Commands: nmap localhost; nmap -sV localhost; nmap -p 1-1000 localhost
+Observation:
+- nmap scans not executed because commands are intercepted.
+- Plan: run localhost scans to inventory listening services; keep scans to local host only.
+
+Conclusion:
+- Task initialized; command output collection is blocked by the current shell wrapper. Once an unwrapped shell is available, rerun the listed commands, record actual outputs, and reassess listening services and connectivity.

@@ -1,0 +1,64 @@
+Task 2.2: Firewall Basics & Network Hardening
+
+Objective:
+Understand basic firewall concepts, view firewall status, and learn how firewalls help secure a system by controlling network traffic.
+
+--------------------------------------------------
+1) Firewall Concept Overview
+--------------------------------------------------
+A firewall is a security mechanism that monitors and controls incoming and outgoing network traffic based on predefined rules. It acts as a barrier between trusted internal systems and untrusted external networks.
+
+Key purposes of a firewall:
+- Prevent unauthorized access
+- Allow legitimate traffic
+- Reduce attack surface
+- Protect services running on the system
+
+--------------------------------------------------
+2) Firewall Types
+--------------------------------------------------
+Common firewall types include:
+
+- Host-based firewalls (e.g., UFW, firewalld, iptables)
+- Network firewalls (hardware or perimeter firewalls)
+- Stateful firewalls
+- Application-level firewalls
+
+--------------------------------------------------
+3) Firewall Status Check
+--------------------------------------------------
+Commands (may be restricted in Codespaces):
+
+- sudo ufw status
+- sudo iptables -L
+- firewall-cmd --state
+
+Observation:
+- Firewall commands may be blocked or unavailable in this environment.
+- Codespaces often run inside managed containers where firewall control is restricted.
+
+--------------------------------------------------
+4) Default Firewall Policy
+--------------------------------------------------
+Typical secure default policies:
+- Deny all incoming traffic
+- Allow all outgoing traffic
+- Explicitly allow only required services (SSH, HTTP, HTTPS)
+
+This principle follows "default deny" security strategy.
+
+--------------------------------------------------
+5) Importance of Firewalls in Security
+--------------------------------------------------
+Firewalls help prevent:
+- Port scanning attacks
+- Unauthorized service access
+- Malware communication
+- Lateral movement inside networks
+
+They are a critical first line of defense in system security.
+
+--------------------------------------------------
+6) Conclusion
+--------------------------------------------------
+Firewalls are essential for protecting systems from unauthorized network access. Even when direct configuration is restricted (as in cloud environments), understanding firewall behavior is vital for cybersecurity professionals.
