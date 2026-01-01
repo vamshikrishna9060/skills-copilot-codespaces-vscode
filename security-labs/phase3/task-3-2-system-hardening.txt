@@ -1,0 +1,46 @@
+Task 3.2: System Hardening
+
+Objective:
+To understand system hardening techniques used to reduce the attack surface and improve overall system security.
+
+1) What is System Hardening?
+System hardening is the process of securing a system by reducing vulnerabilities, disabling unnecessary services, and applying secure configurations.
+
+2) Key Hardening Areas
+- Operating System
+- Network Services
+- User Accounts
+- File Permissions
+- Software Updates
+
+3) Common System Hardening Techniques
+- Disable unused services and ports
+- Apply least privilege principle
+- Enforce strong password policies
+- Regularly update and patch software
+- Enable logging and monitoring
+- Configure firewalls
+
+4) Example Hardening Commands (Conceptual)
+(Note: Commands may be restricted in this environment)
+
+- sudo apt update && sudo apt upgrade
+- sudo systemctl disable unused-service
+- chmod 600 sensitive_file
+- ufw enable
+- ufw allow ssh
+
+5) Security Benefits
+- Minimizes attack surface
+- Prevents unauthorized access
+- Reduces risk of privilege escalation
+- Improves system resilience
+
+6) Best Practices
+- Harden systems before deployment
+- Review configurations regularly
+- Document all changes
+- Combine hardening with monitoring
+
+Conclusion:
+System hardening is a foundational cybersecurity practice. A well-hardened system significantly lowers the chances of successful attacks and strengthens overall security posture.
