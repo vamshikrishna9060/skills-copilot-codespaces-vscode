@@ -1,0 +1,612 @@
+=== SOC-2 LAB 3: THREAT HUNTING ===
+
+THREAT HUNTING OVERVIEW:
+Proactive search for threats that evaded automated detection systems
+Objective: Find hidden threats before they cause damage
+Approach: Hypothesis-driven investigation using logs, IOCs, and behavioral analysis
+
+CONTEXT:
+Following the jdoe@example.com VPN compromise (INC-20260103-5819), we want to
+proactively hunt for similar attack patterns that may not have triggered alerts.
+
+Hunt Date: 2026-01-03 17:00:00 UTC
+Hunt Lead: SOC Tier-2 Analyst
+Hunt Duration: 2 hours
+Hunt Scope: Last 30 days of authentication logs, VPN logs, network traffic
+
+================================================================================
+
+PHASE 1: HYPOTHESIS DEVELOPMENT
+--------------------------------
+
+Hunt Hypothesis #1: Credential Stuffing Campaign
+-------------------------------------------------
+Question: Was the jdoe compromise part of a larger credential stuffing campaign
+targeting multiple accounts that we haven't detected yet?
+
+Reasoning:
+- Attacker used IP 185.199.110.153 (suspicious geo)
+- Brute-force pattern: multiple failures → success
+- This is typical of automated credential stuffing tools
+- Attackers often target multiple accounts, not just one
+- We may have accounts with failed attempts that are below alert thresholds
+
+What We're Looking For:
+- Multiple accounts with failed login attempts from the same IP ranges
+- Patterns of failed→success across different users
+- IPs from the same ASN or geographic region as 185.199.110.153
+- Time correlation: attacks happening in similar timeframes
+- Low-volume attempts (below detection thresholds) that accumulate over time
+
+Expected Outcomes:
+- Discover additional compromised or targeted accounts
+- Identify the attack infrastructure (IP ranges, patterns)
+- Improve detection thresholds to catch low-and-slow attacks
+
+
+Hunt Hypothesis #2: Reconnaissance Activity
+-------------------------------------------
+Question: Did the attacker perform reconnaissance before the brute-force attack?
+
+Reasoning:
+- Successful attacks often start with reconnaissance
+- Attacker may have probed for valid usernames, VPN endpoints, auth methods
+- May have tested for MFA enforcement, password policies, rate limiting
+- Could have used OSINT to identify employees and target specific accounts
+
+What We're Looking For:
+- Failed login attempts with invalid usernames (username enumeration)
+- Port scans or probes targeting VPN gateway IP addresses
+- Web scraping or API calls to public-facing employee directories
+- DNS queries for company infrastructure (mail, vpn, remote access domains)
+- Timing: reconnaissance activity days/weeks before the actual attack
+
+Expected Outcomes:
+- Identify attacker's preparation phase
+- Find additional attacker infrastructure
+- Improve perimeter defense and information disclosure controls
+
+
+Hunt Hypothesis #3: Post-Compromise Activity We Missed
+-------------------------------------------------------
+Question: Did the attacker establish persistence or move laterally that we didn't
+detect during incident response?
+
+Reasoning:
+- Initial investigation showed 14-minute VPN session
+- File downloads detected, but what about other actions?
+- Attacker may have been more sophisticated than initial evidence suggested
+- Could have planted backdoors, created accounts, or established alternate access
+
+What We're Looking For:
+- Suspicious commands executed during or after the VPN session
+- New user accounts, service accounts, or API keys created
+- Modified permissions or group memberships
+- Scheduled tasks, cron jobs, or persistence mechanisms
+- Outbound connections to suspicious IPs/domains during or after the session
+- Data staging areas (large files moved to temp directories)
+
+Expected Outcomes:
+- Verify our containment was complete
+- Identify any lingering threats
+- Improve EDR visibility and detection coverage
+
+
+================================================================================
+
+PHASE 2: HUNT EXECUTION
+------------------------
+
+HUNT #1: Credential Stuffing Campaign Detection
+================================================
+
+Query 1: Find All Failed Logins from Attacker's IP Range (Last 30 Days)
+------------------------------------------------------------------------
+SIEM Query (Splunk-style syntax):
+
+index=authentication sourcetype=vpn_logs action=failed
+| where src_ip >= "185.199.110.0" AND src_ip <= "185.199.110.255"
+| stats count by src_ip, user, _time
+| sort -count
+
+Results Found: 47 events across 8 different source IPs
+
+Key Findings:
+- 185.199.110.153: 15 failures → 1 success (jdoe@example.com) ← KNOWN INCIDENT
+- 185.199.110.142: 8 failures (admin@example.com) - NO SUCCESS
+- 185.199.110.187: 12 failures (sysadmin@example.com) - NO SUCCESS
+- 185.199.110.201: 6 failures (hr-admin@example.com) - NO SUCCESS
+- 185.199.110.089: 4 failures (it-support@example.com) - NO SUCCESS
+- 185.199.110.064: 2 failures (marketing@example.com) - NO SUCCESS
+
+Pattern Analysis:
+✓ All IPs in same /24 subnet (likely botnet or attack infrastructure)
+✓ Targeted high-value accounts: admin, sysadmin, hr-admin
+✓ Attacks spread over 3-week period (slow and steady)
+✓ Failed attempts stayed below our threshold (10 failures triggers alert)
+✓ Only jdoe exceeded threshold and succeeded
+
+
+Query 2: Check for Successful Logins from ANY IP in This Range
+---------------------------------------------------------------
+SIEM Query:
+
+index=authentication sourcetype=vpn_logs action=success
+| where src_ip >= "185.199.110.0" AND src_ip <= "185.199.110.255"
+| table _time, user, src_ip, geo_country, mfa_status
+
+Results Found: 1 event
+
+- 2026-01-03 14:22:10 UTC | jdoe@example.com | 185.199.110.153 | Unknown | MFA:No
+
+Assessment: GOOD NEWS - Only jdoe was compromised, no other successes detected
+
+
+Query 3: Expand Hunt - Check for Similar Patterns from Other IPs
+-----------------------------------------------------------------
+SIEM Query:
+
+index=authentication sourcetype=vpn_logs action=failed
+| stats count by src_ip, user
+| where count >= 5 AND count <= 15
+| join src_ip [search index=authentication action=success]
+| table src_ip, user, fail_count, success_count
+
+Results Found: 12 suspicious patterns
+
+Most Concerning:
+1. 203.0.113.45 → finance@example.com
+   - 9 failures over 2 days, then 1 success (2026-01-02 08:15 UTC)
+   - Geo: Southeast Asia (unusual for this user)
+   - MFA: No
+   - STATUS: ⚠️ POTENTIAL COMPROMISE - NEEDS INVESTIGATION
+
+2. 198.51.100.78 → dev-team@example.com  
+   - 7 failures, then 1 success (2026-01-01 19:30 UTC)
+   - Geo: Eastern Europe (unusual)
+   - MFA: No
+   - STATUS: ⚠️ POTENTIAL COMPROMISE - NEEDS INVESTIGATION
+
+3. 192.0.2.156 → contractor-smith@example.com
+   - 11 failures, then 1 success (2025-12-28 14:00 UTC)
+   - Geo: South America (unusual)
+   - MFA: No
+   - STATUS: ⚠️ POTENTIAL COMPROMISE - NEEDS INVESTIGATION
+
+CRITICAL FINDING:
+We discovered 3 additional likely compromised accounts that NEVER triggered alerts!
+
+
+Query 4: Check Post-Login Activity for Newly Discovered Accounts
+-----------------------------------------------------------------
+For each suspicious account, investigate session activity:
+
+Account: finance@example.com (203.0.113.45)
+- Session Duration: 8 minutes
+- Files Accessed: Budget_2026.xlsx, Payroll_Q4.csv (SENSITIVE DATA!)
+- Systems Accessed: Finance server, Accounting database
+- Data Downloaded: YES - 2 files, ~15MB total
+- Assessment: CONFIRMED COMPROMISE - Data exfiltration occurred
+
+Account: dev-team@example.com (198.51.100.78)
+- Session Duration: 22 minutes  
+- Files Accessed: Source code repository, API keys file (CRITICAL!)
+- Systems Accessed: GitHub enterprise, Jenkins CI/CD server
+- Data Downloaded: YES - Source code archives, API credentials
+- Assessment: CONFIRMED COMPROMISE - Code and credentials stolen
+
+Account: contractor-smith@example.com (192.0.2.156)
+- Session Duration: 3 minutes
+- Files Accessed: None detected
+- Systems Accessed: VPN only, no internal resources
+- Data Downloaded: NO
+- Assessment: LIKELY COMPROMISE - Minimal activity, possible test or failed exploit
+
+
+HUNT #1 SUMMARY:
+================
+☠️ CRITICAL: Discovered 3 additional compromised accounts previously unknown
+☠️ CRITICAL: Sensitive data exfiltrated (financial data, source code, API keys)
+⚠️ HIGH: Attack campaign targeting company over 3-week period
+⚠️ HIGH: Detection thresholds too high - missed low-volume attacks
+✓ GOOD: No additional compromises from original IP range beyond jdoe
+
+
+HUNT #2: Reconnaissance Activity Detection
+===========================================
+
+Query 5: Username Enumeration Attempts
+---------------------------------------
+SIEM Query:
+
+index=authentication sourcetype=vpn_logs action=failed error="invalid_username"
+| stats count by src_ip
+| where count > 20
+| sort -count
+
+Results Found: 2 IPs with high invalid username attempts
+
+- 185.199.110.211: 143 invalid username attempts (2025-12-15 to 2025-12-20)
+  - Pattern: Trying common names (admin, root, administrator, test, user1, etc.)
+  - Assessment: Username enumeration / credential stuffing list preparation
+
+- 203.0.113.67: 89 invalid username attempts (2025-12-28 to 2026-01-01)
+  - Pattern: Trying firstname.lastname combinations
+  - Assessment: OSINT-based username guessing (likely scraped LinkedIn/website)
+
+FINDING: Attacker performed reconnaissance 2-3 weeks before successful compromise
+
+
+Query 6: Port Scanning and Network Probes
+------------------------------------------
+Data Source: Firewall logs, IDS/IPS logs
+
+Search for port scans targeting VPN gateway IP (203.0.113.10):
+
+index=firewall action=blocked dest_ip="203.0.113.10"
+| stats count by src_ip, dest_port
+| where count > 50
+
+Results Found: 1 significant port scan
+
+- 185.199.110.099: Scanned ports 22, 443, 500, 1194, 4500, 10000 (VPN-related ports)
+  - Date: 2025-12-10 (3 weeks before jdoe compromise)
+  - Assessment: Mapping VPN infrastructure and services
+
+
+Query 7: DNS Reconnaissance
+----------------------------
+Check for DNS queries that suggest reconnaissance:
+
+index=dns query_type=A
+| where query IN ("vpn.example.com", "remote.example.com", "portal.example.com")
+| stats count by src_ip, query
+| where count > 10 AND src_ip NOT IN (internal_networks)
+
+Results Found: Minimal external DNS recon detected
+Assessment: Attacker likely used public DNS or other methods
+
+
+HUNT #2 SUMMARY:
+================
+✓ Confirmed: Attackers performed reconnaissance 2-3 weeks before attacks
+✓ Identified: Username enumeration (building target lists)
+✓ Identified: Port scanning (mapping VPN infrastructure)
+⚠️ Concern: Reconnaissance activity did NOT trigger any alerts
+⚠️ Concern: Weeks of preparation time went unnoticed
+
+
+HUNT #3: Post-Compromise Persistence Check
+===========================================
+
+Query 8: New Account Creation During/After Compromise Windows
+--------------------------------------------------------------
+Check for new user accounts created during suspicious time periods:
+
+index=windows_logs sourcetype="WinEventLog:Security" EventCode=4720
+| where _time >= "2026-01-01" AND _time <= "2026-01-03"
+| table _time, TargetUserName, SubjectUserName, src_host
+
+Results Found: 0 suspicious account creations
+Assessment: No evidence of attacker creating persistence accounts
+
+
+Query 9: Privilege Escalation Attempts
+---------------------------------------
+Check for sudo/privilege escalation during VPN sessions:
+
+index=linux_logs sourcetype=secure command="sudo*"
+| where user="jdoe" AND _time >= "2026-01-03 14:22:00" AND _time <= "2026-01-03 14:36:00"
+
+Results Found: 0 privilege escalation attempts by jdoe
+Assessment: Attacker did not attempt privilege escalation (limited to VPN user permissions)
+
+
+Query 10: Scheduled Task / Cron Job Creation
+---------------------------------------------
+Check for persistence mechanisms:
+
+index=endpoints sourcetype=scheduled_tasks action=created
+| where _time >= "2026-01-01"
+| table _time, task_name, user, command, host
+
+Results Found: 0 suspicious scheduled tasks
+Assessment: No persistence via scheduled tasks detected
+
+
+Query 11: Outbound Connections to Suspicious IPs
+-------------------------------------------------
+Check if compromised accounts connected to known malicious infrastructure:
+
+index=firewall action=allowed direction=outbound
+| where src_user IN ("jdoe", "finance", "dev-team", "contractor-smith")
+| lookup threat_intel_ip dest_ip OUTPUT threat_score
+| where threat_score > 50
+| table _time, src_user, dest_ip, dest_port, threat_score
+
+Results Found: 1 suspicious connection
+
+- 2026-01-03 14:28:00 UTC
+- User: jdoe@example.com  
+- Destination: 198.18.0.45:443 (HTTPS)
+- Threat Intel: Known data exfil staging server (ThreatScore: 85)
+- Assessment: ⚠️ Potential C2 communication or exfil server contact
+
+
+Query 12: Data Staging and Large File Transfers
+------------------------------------------------
+Check for data being staged in temp directories before exfil:
+
+index=file_activity action=create
+| where file_path LIKE "%temp%" OR file_path LIKE "%tmp%"
+| where file_size > 10485760
+| where user IN ("jdoe", "finance", "dev-team")
+| table _time, user, file_path, file_size
+
+Results Found: 0 large files staged in temp directories
+Assessment: No evidence of data staging (attacker likely used direct download/exfil)
+
+
+HUNT #3 SUMMARY:
+================
+✓ GOOD: No persistence mechanisms detected
+✓ GOOD: No new accounts or scheduled tasks created
+✓ GOOD: No privilege escalation attempts
+⚠️ CONCERN: Connection to known exfil server detected (198.18.0.45)
+⚠️ CONCERN: This connection was NOT flagged by our threat intel integration
+
+
+================================================================================
+
+PHASE 3: HUNT FINDINGS & RISK ASSESSMENT
+-----------------------------------------
+
+CRITICAL DISCOVERIES:
+=====================
+
+1. THREE ADDITIONAL COMPROMISED ACCOUNTS:
+   - finance@example.com (203.0.113.45) - Data exfiltrated
+   - dev-team@example.com (198.51.100.78) - Source code & API keys stolen
+   - contractor-smith@example.com (192.0.2.156) - Minimal activity
+
+2. SENSITIVE DATA EXFILTRATED:
+   - Financial records (Budget_2026.xlsx, Payroll_Q4.csv)
+   - Source code repository archives
+   - API credentials and keys
+   - Employee directory (from original jdoe incident)
+
+3. COORDINATED ATTACK CAMPAIGN:
+   - 3-week duration (2025-12-10 to 2026-01-03)
+   - Multiple IPs from different regions (but likely same threat actor)
+   - Targeted high-value accounts (admin, finance, dev)
+   - Stayed below detection thresholds intentionally
+
+4. DETECTION GAPS:
+   - Low-volume brute-force attacks not detected
+   - Reconnaissance activity (username enum, port scans) not alerted
+   - Threat intel integration missed known exfil server connection
+   - No alerts for successful logins from unusual geos (only fail→success pattern)
+
+
+RISK ASSESSMENT:
+================
+
+Severity: CRITICAL
+Confidence: HIGH
+Impact: HIGH (data exfiltration, credential theft, potential code compromise)
+Blast Radius: 4 accounts, multiple departments, sensitive data
+
+Business Impact:
+- Financial data disclosure (competitive harm, regulatory risk)
+- Source code theft (intellectual property loss)
+- API keys stolen (potential infrastructure compromise)
+- Employee PII exposed (legal/compliance risk)
+
+Threat Actor Profile:
+- Sophisticated: Reconnaissance, low-and-slow attacks, targeted account selection
+- Persistent: 3-week campaign, multiple attempts, varied IPs
+- Motivated: Targeted financial, dev, and admin accounts (high-value targets)
+- Resourced: Botnet/proxy infrastructure (multiple IPs, geo diversity)
+
+Likely Attribution:
+- Cybercrime group (financial motive)
+- OR Advanced Persistent Threat (APT) conducting espionage
+- Indicators suggest organized, not opportunistic attacker
+
+
+================================================================================
+
+PHASE 4: IMMEDIATE ACTIONS REQUIRED
+------------------------------------
+
+CRITICAL - EXECUTE NOW:
+=======================
+
+1. Disable All Three Newly Discovered Compromised Accounts:
+   - finance@example.com
+   - dev-team@example.com  
+   - contractor-smith@example.com
+   - Terminate all active sessions
+   - Force password resets
+   - Enforce MFA before re-enabling
+
+2. Block All Attacker IPs Discovered During Hunt:
+   - 185.199.110.0/24 (entire subnet)
+   - 203.0.113.45, 203.0.113.67
+   - 198.51.100.78
+   - 192.0.2.156
+   - 198.18.0.45 (exfil server)
+
+3. Revoke All Stolen API Keys Immediately:
+   - Review what API keys were accessible to dev-team account
+   - Rotate all keys immediately
+   - Check for unauthorized API usage in logs
+
+4. Notify Affected Users and Management:
+   - Contact finance@, dev-team@, contractor-smith@ users
+   - Notify CISO and executive leadership (escalated incident)
+   - Notify legal team (potential breach notification requirements)
+
+5. Begin Forensic Investigation:
+   - Preserve all logs and evidence
+   - Investigate full scope of data exfiltration
+   - Determine if source code was tampered with (integrity check)
+   - Assess risk of API key usage post-theft
+
+
+HIGH - WITHIN 24 HOURS:
+=======================
+
+6. Enhance Detection Rules:
+   - Lower brute-force threshold (5 failures, not 10)
+   - Add "successful login from unusual geo" alert (no failures required)
+   - Add username enumeration detection (20+ invalid usernames)
+   - Enable threat intel blocking (not just alerting)
+
+7. Deploy Emergency MFA Enforcement:
+   - Require MFA for ALL VPN users (no exceptions)
+   - Require MFA for admin/privileged accounts across all systems
+   - Send company-wide MFA enrollment campaign
+
+8. Conduct Threat Hunt Expansion:
+   - Hunt for additional compromises in last 90 days (not just 30)
+   - Check for lateral movement from compromised accounts
+   - Review all file access by compromised accounts
+   - Check for insider threat indicators
+
+
+MEDIUM - WITHIN 1 WEEK:
+=======================
+
+9. Security Posture Improvements:
+   - Implement geo-fencing for VPN (block non-business countries)
+   - Deploy rate limiting (5 auth attempts = 30-minute lockout)
+   - Enhance EDR coverage and visibility
+   - Improve threat intelligence integration
+
+10. Incident Response Process Updates:
+    - Add "proactive threat hunting" to all incident response procedures
+    - Create playbook for coordinated attack campaigns
+    - Establish threat hunt schedule (weekly hunts for high-priority threats)
+
+
+================================================================================
+
+PHASE 5: DETECTION RULE RECOMMENDATIONS
+----------------------------------------
+
+New Detection Rules to Deploy:
+===============================
+
+Rule 1: Low-Volume Brute Force Detection
+-----------------------------------------
+Trigger: 5+ failed auth attempts for same user within 24 hours from same IP
+Severity: Medium
+Action: Alert SOC, add IP to watchlist
+Rationale: Catches "low and slow" attacks below current threshold
+
+Rule 2: Successful Login from Unusual Geo
+------------------------------------------
+Trigger: Successful auth from country/region not in user's baseline (last 90 days)
+Severity: High  
+Action: Alert SOC, require MFA re-verification, notify user
+Rationale: Catches compromises even without prior failed attempts
+
+Rule 3: Username Enumeration Detection
+---------------------------------------
+Trigger: 20+ invalid username attempts from single IP within 1 hour
+Severity: Medium
+Action: Alert SOC, block IP for 24 hours
+Rationale: Detects reconnaissance phase of attacks
+
+Rule 4: Credential Stuffing Pattern
+------------------------------------
+Trigger: Same IP attempting auth to 3+ different users within 1 hour
+Severity: High
+Action: Alert SOC, block IP, review all accounts targeted
+Rationale: Identifies coordinated credential stuffing campaigns
+
+Rule 5: Post-Auth Data Exfiltration
+------------------------------------
+Trigger: >10MB data download within 15 minutes of successful VPN login
+Severity: High
+Action: Alert SOC, capture session details, notify user
+Rationale: Catches "smash and grab" exfiltration attempts
+
+Rule 6: Connection to Known Exfil Servers
+------------------------------------------
+Trigger: Outbound connection to IP with threat score >70
+Severity: Critical
+Action: Block connection, alert SOC immediately, kill user session
+Rationale: Prevents data exfiltration to known malicious infrastructure
+
+
+Tuning Existing Rules:
+======================
+
+Current Rule: "Multiple Failed Logins Then Success"
+OLD: 10 failures → 1 success from same IP
+NEW: 5 failures → 1 success from same IP (lower threshold)
+Rationale: Hunt revealed attacks staying just below current threshold
+
+Current Rule: "Failed Login Alert"
+OLD: Alert on 10+ failures to single account
+NEW: Alert on 5+ failures to single account OR 3+ accounts from same IP
+Rationale: Catches distributed attacks across multiple accounts
+
+
+================================================================================
+
+PHASE 6: HUNT SUMMARY & LESSONS LEARNED
+----------------------------------------
+
+Hunt Results:
+=============
+- Duration: 2 hours
+- Queries Executed: 12
+- Compromises Discovered: 3 (previously unknown)
+- Data Exfiltration Confirmed: Yes (financial, source code, API keys)
+- Attack Campaign Duration: 3 weeks
+- Attacker IPs Identified: 8 new IPs
+- Detection Gaps Identified: 6 major gaps
+
+Value Delivered:
+- Prevented ongoing/future damage by discovering hidden compromises
+- Identified systemic detection failures
+- Provided actionable intelligence for defense improvements
+- Demonstrated need for proactive hunting vs reactive alerting
+
+What Worked:
+✓ Hypothesis-driven approach focused hunt effectively
+✓ Expanding hunt from known incident revealed broader campaign
+✓ Cross-correlating multiple data sources (auth logs + file access + network)
+✓ Looking for "below threshold" patterns caught sophisticated attacker
+
+What Could Improve:
+- Hunt should have been triggered earlier (proactive schedule, not just reactive)
+- Need better data retention (some logs only retained 30 days)
+- Threat intelligence integration needs improvement (missed known exfil server)
+- User behavioral baselines not established (no "normal" to compare against)
+
+Recommended Hunt Cadence:
+=========================
+- Weekly: Hunt for active threats (IOCs from recent incidents, threat intel)
+- Monthly: Hunt for emerging TTPs (new attack techniques, 0-days, trends)
+- Quarterly: Hunt for insider threats and advanced persistent threats (APTs)
+- Ad-hoc: Hunt triggered by major incidents (like this one)
+
+Hunt Team Maturity Path:
+========================
+Current: Reactive hunting (hunting after incident discovered)
+Next: Proactive hunting (scheduled hunts based on threat intelligence)
+Future: Continuous hunting (automated hunt queries, ML-based anomaly detection)
+
+================================================================================
+
+HUNT STATUS: COMPLETED
+Hunt Lead: SOC Tier-2 Analyst
+Completion Time: 2026-01-03 19:00:00 UTC
+Findings: CRITICAL - Escalated to Incident Response Team
+Follow-up: New incidents opened for 3 additional compromises (INC-20260103-5820, 5821, 5822)
+
+=== END OF THREAT HUNT REPORT ===
