@@ -1,0 +1,301 @@
+=== SOC-2 LAB 2: CONTAINMENT & RESPONSE ===
+
+SCENARIO RECAP:
+Account jdoe@example.com compromised via brute-force attack from IP 185.199.110.153
+VPN session established on vpn-gateway-01 at 2026-01-03 14:22:10 UTC
+Investigation confirmed: High severity, likely true positive
+VPN session is STILL ACTIVE - immediate action required
+
+RESPONSE OBJECTIVE:
+Contain the breach, eradicate the threat, restore secure access, and prevent recurrence
+
+================================================================================
+
+PHASE 1: IMMEDIATE CONTAINMENT (STOP THE BLEEDING)
+---------------------------------------------------
+
+Time Started: 2026-01-03 14:35:00 UTC
+Incident Responder: SOC Tier-2 Analyst
+
+Action 1 - Terminate Active VPN Session
+- Command/Action: Locate active VPN session ID for jdoe@example.com from 185.199.110.153
+- Execution: Terminate session via VPN admin console or CLI
+- Verification: Confirm session no longer appears in active sessions list
+- Evidence: Screenshot of terminated session, session end timestamp
+- Status: [COMPLETED]
+- Notes: Session ID VPN-20260103-5891 terminated at 14:36:12 UTC
+
+Action 2 - Disable Compromised Account
+- Command/Action: Disable jdoe@example.com in Active Directory/Identity Provider
+- Execution: Set account status to "Disabled" - prevents any new authentications
+- Verification: Attempt test login should fail with "account disabled" message
+- Evidence: Identity provider audit log showing account disable event
+- Status: [COMPLETED]
+- Notes: Account disabled at 14:36:45 UTC by SOC analyst
+
+Action 3 - Block Attacker IP Address
+- Command/Action: Add 185.199.110.153 to firewall/VPN gateway block list
+- Execution: Create firewall rule blocking all traffic from source IP
+- Verification: Test connection from IP should be dropped/rejected
+- Evidence: Firewall rule creation timestamp and rule ID
+- Status: [COMPLETED]
+- Notes: IP blocked at 14:37:20 UTC, rule ID FW-BLOCK-5431
+
+Action 4 - Alert Security Team & Stakeholders
+- Notification sent to: SOC Manager, Incident Response Team, IT Security Lead
+- Notification method: Pager alert + Slack security channel
+- Message: "ACTIVE INCIDENT: Account compromise confirmed, containment in progress"
+- Time sent: 14:38:00 UTC
+- Status: [COMPLETED]
+
+
+================================================================================
+
+PHASE 2: INVESTIGATION CONTINUATION (ASSESS DAMAGE)
+----------------------------------------------------
+
+Action 5 - Review VPN Session Activity
+- Data Source: VPN session logs, firewall logs, internal network traffic
+- Time Range: 14:22:10 UTC to 14:36:12 UTC (session duration: ~14 minutes)
+- Systems Accessed: 
+  • File server: \\fileserver01\shared (accessed at 14:25:30)
+  • Database server: db-prod-01.internal (connection attempt at 14:28:15 - FAILED)
+  • Email server: mail.internal (accessed at 14:30:00)
+- Files Accessed/Downloaded:
+  • Q4_Financial_Report.xlsx (downloaded at 14:26:10)
+  • Employee_Directory.csv (downloaded at 14:27:35)
+- Commands Executed: None detected (no shell access granted)
+- Lateral Movement: No successful lateral movement to other hosts detected
+
+Action 6 - Check for Persistence Mechanisms
+- EDR Scan: No malware, backdoors, or scheduled tasks detected on accessed systems
+- Registry Changes: No suspicious registry modifications found
+- New User Accounts: No new accounts created during session
+- SSH Keys/Certificates: No new keys or certificates issued
+- Status: No persistence mechanisms identified
+
+Action 7 - Check for Additional Compromised Accounts
+- Search Criteria: Failed login patterns from 185.199.110.153 to other accounts
+- Results: No other accounts targeted from this IP in past 30 days
+- Related IPs: Check for IP ranges - 185.199.110.0/24 shows 2 other IPs with failed attempts
+  • 185.199.110.142 - 8 failed attempts to admin@example.com (no success)
+  • 185.199.110.187 - 12 failed attempts to sysadmin@example.com (no success)
+- Recommendation: Monitor these accounts, enforce MFA immediately
+
+
+================================================================================
+
+PHASE 3: ERADICATION (REMOVE THE THREAT)
+------------------------------------------
+
+Action 8 - Force Password Reset
+- Account: jdoe@example.com
+- Method: Administrative password reset + user must set new password at next login
+- Password Requirements Enforced: 
+  • Minimum 16 characters
+  • Complexity requirements met
+  • Not matching previous 12 passwords
+  • Cannot contain username or common patterns
+- Status: [COMPLETED]
+- Time: 14:50:00 UTC
+
+Action 9 - Enable/Enforce MFA
+- Account: jdoe@example.com
+- MFA Method: Microsoft Authenticator app + SMS backup
+- Configuration: MFA required for ALL authentication attempts (VPN, email, apps)
+- Enrollment: User to complete MFA enrollment before account re-enabled
+- Status: [PENDING USER ENROLLMENT]
+
+Action 10 - Revoke All Active Sessions/Tokens
+- Action: Revoke all OAuth tokens, session cookies, and SSO sessions for jdoe@example.com
+- Systems Affected: VPN, Email, SharePoint, CRM, all corporate apps
+- Verification: User must re-authenticate everywhere after password reset
+- Status: [COMPLETED]
+- Time: 14:52:00 UTC
+
+Action 11 - Scan Accessed Systems for Malware
+- Systems Scanned: fileserver01, mail.internal
+- Scan Tool: Enterprise EDR + antivirus full scan
+- Results: No malware detected
+- Status: [COMPLETED - CLEAN]
+- Time: 15:20:00 UTC
+
+
+================================================================================
+
+PHASE 4: RECOVERY (RESTORE SECURE OPERATIONS)
+----------------------------------------------
+
+Action 12 - Contact User for Verification
+- Contact Method: Phone call to user (verified number from HR records)
+- Contact Time: 14:55:00 UTC
+- Outcome: User confirmed NOT traveling, NOT using VPN at that time
+- User Statement: "I was in a meeting, didn't use VPN today. Definitely compromised."
+- User Device: User's laptop physically inspected - no malware, not compromised
+- Assessment: Credential stuffing/brute-force confirmed, user's device is clean
+
+Action 13 - Account Recovery Steps
+- Step 1: User completed MFA enrollment (verified at 15:30:00 UTC)
+- Step 2: User set new strong password (15:32:00 UTC)
+- Step 3: User confirmed no unauthorized devices registered to account
+- Step 4: Account re-enabled with MFA enforced (15:35:00 UTC)
+- Step 5: User successfully authenticated with new password + MFA (15:36:00 UTC)
+- Status: [ACCOUNT RECOVERED]
+
+Action 14 - Assess Data Exposure
+- Files Downloaded by Attacker:
+  1. Q4_Financial_Report.xlsx - Contains: Revenue data, not yet public (SENSITIVE)
+  2. Employee_Directory.csv - Contains: Names, emails, phone numbers, departments (INTERNAL USE)
+- Data Classification: Both files classified as "Internal - Confidential"
+- Business Impact: Potential competitive harm if financial data disclosed; limited PII exposure
+- Regulatory Impact: No PII requiring breach notification (no SSN, health data, payment data)
+
+Action 15 - Monitoring & Watch List
+- Enhanced Monitoring for jdoe@example.com:
+  • All login attempts (successful + failed) - alert on any anomaly
+  • Privilege escalation attempts
+  • Unusual file access patterns
+  • Geo-location anomalies
+  • MFA bypass attempts
+- IP Watch List: 185.199.110.0/24 subnet added to threat intelligence feed
+- Duration: 90 days enhanced monitoring
+
+
+================================================================================
+
+PHASE 5: COMMUNICATION (NOTIFY STAKEHOLDERS)
+---------------------------------------------
+
+Internal Notifications:
+
+1. User (jdoe@example.com)
+   - Notified: 14:55:00 UTC (phone call)
+   - Message: Account compromised, immediate action required, password reset instructions
+   - Follow-up: Email with security best practices, how to spot phishing, report suspicious activity
+
+2. User's Manager (Sarah Johnson)
+   - Notified: 15:00:00 UTC (email + phone)
+   - Message: Employee account compromised, potential data access, no business disruption
+   - Action Required: None, informational only
+
+3. IT Security Manager
+   - Notified: 14:38:00 UTC (initial alert), 16:00:00 UTC (full incident summary)
+   - Message: Full incident timeline, containment actions, recommendations
+   - Action Required: Approve MFA enforcement for all VPN users (not just jdoe)
+
+4. Incident Response Team
+   - Notified: 14:38:00 UTC (active incident), 16:30:00 UTC (incident closed)
+   - Message: Incident contained, eradicated, and resolved. Post-incident review scheduled.
+
+5. Executive Leadership (CISO)
+   - Notified: 16:45:00 UTC (incident summary report)
+   - Message: Low-impact breach contained, no customer data affected, MFA recommendations
+   - Action Required: Approve budget for MFA rollout acceleration
+
+External Notifications:
+- Law Enforcement: NOT required (no criminal investigation requested at this time)
+- Regulatory Bodies: NOT required (no breach notification threshold met)
+- Customers/Public: NOT required (no customer data affected)
+
+Incident Ticket:
+- Ticket ID: INC-20260103-5819
+- Severity: High (initially) → Medium (post-containment)
+- Status: CLOSED
+- Resolution Time: 2 hours 10 minutes (detection to resolution)
+
+
+================================================================================
+
+PHASE 6: LESSONS LEARNED & POST-INCIDENT REVIEW
+------------------------------------------------
+
+Post-Incident Review Meeting:
+- Date: 2026-01-04 10:00:00 UTC (next business day)
+- Attendees: SOC Team, Incident Response, IT Security Manager, Network Operations
+- Duration: 60 minutes
+
+What Worked Well:
+1. SIEM detected the fail→success pattern within 10 seconds of successful login
+2. SOC analyst triaged and escalated within 5 minutes
+3. Containment actions executed quickly (session killed in <15 minutes)
+4. Clear communication with user and stakeholders
+5. No lateral movement or persistence detected
+
+What Failed or Was Slow:
+1. MFA was NOT enabled on VPN - this is the root cause that allowed the breach
+2. No geo-based alerting or blocking - unusual geo should have triggered earlier
+3. No rate limiting on VPN authentication - 15 attempts in 2 minutes should have triggered lockout
+4. Post-VPN session activity monitoring was limited - took time to reconstruct what was accessed
+5. User had not completed security awareness training on password security
+
+Detection Gaps Identified:
+1. VPN authentication logs are ingested but not enriched with geo-location in real-time
+2. No automated response to terminate sessions on high-severity alerts
+3. File download activity from VPN sessions not monitored in real-time
+4. No baseline for "normal" user behavior (ML-based anomaly detection not in place)
+
+Playbook Updates Needed:
+1. Create "Compromised VPN Account" playbook with step-by-step containment actions
+2. Add automated session termination to high-severity VPN compromise alerts
+3. Update escalation procedures to include user contact within first 10 minutes
+4. Document file access investigation procedures for VPN sessions
+
+Recommended Security Improvements:
+1. IMMEDIATE (Week 1):
+   - Enable MFA for all VPN users (100% coverage)
+   - Implement rate limiting on VPN authentication (5 failures = 15-minute lockout)
+   - Add geo-location enrichment to SIEM for all authentication events
+
+2. SHORT-TERM (Month 1):
+   - Deploy geo-fencing or alerts for "unusual geo" logins
+   - Implement automated session termination for high-severity compromise alerts
+   - Enable real-time file download monitoring for VPN sessions
+   - Accelerate security awareness training rollout (focus on password hygiene)
+
+3. MEDIUM-TERM (Quarter 1):
+   - Implement User and Entity Behavior Analytics (UEBA) for anomaly detection
+   - Deploy Privileged Access Management (PAM) for admin accounts
+   - Conduct VPN infrastructure security assessment and hardening
+   - Implement zero-trust network architecture principles
+
+4. LONG-TERM (Year 1):
+   - Replace legacy VPN with zero-trust network access (ZTNA) solution
+   - Implement continuous authentication and risk-based access controls
+   - Deploy advanced threat intelligence integration
+   - Establish red team exercises to test detection and response capabilities
+
+New Detection Rules Created:
+1. Alert: "Multiple VPN auth failures followed by success" (already existed, confirmed working)
+2. Alert: "VPN login from new geographic location" (NEW - to be deployed)
+3. Alert: "VPN session with high data download volume" (NEW - to be deployed)
+4. Alert: "Failed auth attempts from same IP to multiple accounts" (NEW - to be deployed)
+
+Metrics & KPIs:
+- Time to Detect (TTD): <1 minute (excellent)
+- Time to Triage (TTT): 5 minutes (good)
+- Time to Contain (TTC): 14 minutes (good)
+- Time to Eradicate (TTE): 30 minutes (good)
+- Time to Recover (TTR): 73 minutes (acceptable)
+- Total Incident Duration: 2 hours 10 minutes (acceptable for first occurrence)
+- Data Loss: 2 files (low impact)
+- Systems Compromised: 1 account, 0 endpoints (minimal blast radius)
+
+Success Criteria Met:
+✓ Breach contained before significant damage
+✓ No lateral movement or persistence
+✓ Account recovered securely
+✓ User verified and trained
+✓ Detection gaps identified and remediation planned
+✓ Stakeholders informed appropriately
+✓ Lessons documented for future incidents
+
+
+================================================================================
+
+INCIDENT STATUS: CLOSED
+Closed By: SOC Tier-2 Analyst
+Closed Date: 2026-01-03 16:45:00 UTC
+Root Cause: Lack of MFA on VPN + weak password susceptible to brute-force
+Recurrence Prevention: MFA enforcement + rate limiting + geo-based alerting
+
+=== END OF CONTAINMENT & RESPONSE REPORT ===
