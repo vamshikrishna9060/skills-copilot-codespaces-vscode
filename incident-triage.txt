@@ -1,0 +1,40 @@
+SOC-1 Lab 3 – Alert Severity & Incident Triage
+
+1. What is incident triage?
+Incident triage is the process of analyzing alerts to decide
+their severity and required response.
+
+2. Alert severity levels:
+- Low: Informational, no immediate risk
+- Medium: Suspicious behavior, needs monitoring
+- High: Confirmed malicious activity
+- Critical: Active attack impacting systems
+
+3. Example classifications:
+- One failed login → Low
+- Multiple failed logins → Medium
+- SSH brute force detected → High
+- Successful breach + data exfiltration → Critical
+
+4. SOC analyst actions:
+Low:
+- Log and close
+
+Medium:
+- Monitor
+- Add context
+- Watch for escalation
+
+High:
+- Escalate to Tier-2
+- Block IP
+- Preserve logs
+
+Critical:
+- Immediate escalation
+- Incident response
+- Notify management
+
+5. Learning:
+Correct severity prevents alert fatigue and ensures
+real threats get immediate attention.

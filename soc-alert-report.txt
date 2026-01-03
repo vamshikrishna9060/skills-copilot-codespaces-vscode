@@ -1,0 +1,32 @@
+SOC-1 Lab 4 – Security Alert Writing
+
+Alert Title:
+SSH Brute Force Attempt Detected
+
+Severity:
+High
+
+Description:
+Multiple failed SSH login attempts were detected from a single
+external IP address within a short time window. The attacker
+attempted to authenticate using common usernames.
+
+Evidence:
+- Source IP: 192.168.1.100
+- Target Port: 22 (SSH)
+- Failed login attempts: 15
+- Usernames tried: root, admin, ubuntu
+- Time range: 3 minutes
+
+Impact:
+If successful, the attacker could gain unauthorized access
+to the server.
+
+SOC Analyst Action:
+- Escalated to Tier-2 SOC
+- Recommended blocking source IP
+- Continued monitoring for further attempts
+
+Analyst Note:
+No successful login was observed. This alert is classified
+as a confirmed brute-force attempt.

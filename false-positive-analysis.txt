@@ -1,0 +1,32 @@
+SOC-1 Lab 2 – False Positive Analysis
+
+1. What is a false positive?
+A false positive is an alert that looks suspicious but is actually
+legitimate activity.
+
+2. Example of false positive:
+- User enters wrong password multiple times
+- VPN reconnect causes repeated logins
+- Admin testing SSH access
+
+3. How SOC analysts reduce false positives:
+- Check source IP reputation
+- Verify user identity
+- Correlate with other logs
+- Look for successful login after failures
+
+4. Difference between attack and false positive:
+Attack:
+- Continuous failures
+- Multiple usernames
+- No successful login
+- External IP
+
+False Positive:
+- Few attempts
+- Known user
+- Successful login occurs
+- Internal IP
+
+5. Learning:
+Not every alert is an attack. Context matters.
