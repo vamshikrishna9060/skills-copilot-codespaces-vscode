@@ -1,0 +1,224 @@
+=== SOC-2 LAB 1: INCIDENT INVESTIGATION ===
+
+SCENARIO:
+SIEM alert: "Multiple failed logins followed by a successful login from unusual IP"
+Account: jdoe@example.com
+Source IP: 185.199.110.153 (unusual geo)
+Host: vpn-gateway-01
+Time: 2026-01-03 14:22:10 UTC
+Context: 15 failed logins → 1 success in ~2 minutes, no MFA recorded
+
+================================================================================
+
+1) Alert Summary
+----------------
+Alert Name:
+Multiple failed logins followed by a successful login from unusual IP
+
+Source System:
+SIEM (ingesting VPN authentication logs)
+
+Trigger Time (UTC):
+2026-01-03 14:22:10 UTC
+
+Initial Severity:
+High
+
+Why This Matters:
+A burst of multiple failed authentication attempts followed by a successful login
+from an unusual geographic location strongly indicates a possible brute-force or
+credential stuffing attack that may have succeeded. This suggests potential
+account compromise and unauthorized network access.
+
+
+2) Scope & Impact (What could be affected?)
+--------------------------------------------
+Account(s) involved:
+jdoe@example.com
+
+Host(s)/IP(s):
+VPN Gateway: vpn-gateway-01
+Source IP: 185.199.110.153 (unusual geographic location for this user)
+
+Data or systems at risk:
+VPN access provides network-level access to internal applications, file shares,
+databases, and other corporate resources. Potential for lateral movement across
+the internal network.
+
+Business impact (potential):
+Risk of unauthorized access to corporate network, potential data exfiltration,
+lateral movement to sensitive systems, and possible credential theft for
+additional accounts.
+
+
+3) Evidence Collection Plan
+----------------------------
+Logs to pull (paths/queries):
+- VPN authentication logs (accept/reject events)
+- Identity Provider logs (if SSO is used)
+- EDR authentication events on endpoints accessed post-login
+- Firewall/VPN session logs showing connection duration and destination IPs
+- Application access logs (any systems accessed after VPN login)
+
+Time window to collect (UTC):
+2026-01-03 14:15:00 to 2026-01-03 14:35:00
+(Captures failed attempts, successful login, and immediate aftermath)
+
+Artifacts to gather (screenshots, hashes, PCAPs, etc.):
+- SIEM screenshots of the alert
+- Raw log lines for failed and successful authentication events
+- GeoIP lookup result for 185.199.110.153
+- Any MFA prompts or denials
+- VPN session ID and session metadata
+- User agent and device fingerprint data
+
+Tools to use (SIEM, EDR, OS commands):
+- SIEM search queries
+- VPN appliance logs and admin console
+- GeoIP lookup (internal tool or public database)
+- EDR console (to trace host activity after VPN login)
+- Identity provider audit logs
+
+
+4) Timeline (build minute-by-minute)
+-------------------------------------
+T-2 minutes to T0 (14:20:00 – 14:22:00):
+- 15 consecutive failed VPN authentication attempts for account jdoe@example.com
+- Source IP: 185.199.110.153
+- Target system: vpn-gateway-01
+- Failure reason: invalid credentials
+
+T0 (Alert Trigger Time – 14:22:10):
+- Successful VPN login for jdoe@example.com
+- Source IP: 185.199.110.153
+- Host: vpn-gateway-01
+- No MFA challenge recorded at time of authentication
+
+T+ Immediate (Post-login activity – to be confirmed):
+- VPN session established (session ID to be confirmed)
+- Need to determine session duration and resources accessed immediately after login
+
+Observed Gaps / Unknowns:
+- Whether MFA is enabled for this account
+- Whether MFA was bypassed or not configured
+- Whether the user had concurrent logins from usual geographic locations
+- Whether any endpoint activity occurred after VPN login (EDR review pending)
+
+
+5) Hypotheses (what might be happening?)
+-----------------------------------------
+Hypothesis A: Credential stuffing / brute-force succeeded
+- How to confirm/deny: Verify the 15→1 fail/success pattern for same user/IP; 
+  check if password reset or MFA event occurred; confirm if IP/geo is first-seen 
+  for this user; review password strength and breach databases.
+
+Hypothesis B: Legitimate user traveling / roaming
+- How to confirm/deny: Check any travel notice/ticket from the user; compare 
+  usual geos vs this IP; look for concurrent logins from the usual region; 
+  contact user to verify activity; check if device fingerprint matches usual devices.
+
+Hypothesis C: Session hijack or token replay
+- How to confirm/deny: Compare device/user-agent fingerprints across attempts; 
+  look for abrupt geo jumps without matching failures; check overlapping sessions 
+  and token reuse indicators (SSO/VPN session IDs); review session creation vs 
+  authentication timestamps.
+
+
+6) Findings (evidence you confirmed)
+-------------------------------------
+Confirmed activity:
+15 failed VPN authentication attempts followed by 1 successful login for 
+jdoe@example.com from 185.199.110.153 on vpn-gateway-01 at 14:22:10 UTC.
+
+Key indicators (IPs, users, hashes, domains):
+- Source IP: 185.199.110.153 (unusual geographic location for this user)
+- Account: jdoe@example.com
+- Host: vpn-gateway-01
+- Time window: 14:20:00–14:22:10 UTC
+- MFA prompt not observed in authentication logs
+
+Lateral movement? (Y/N, details)
+Unknown — requires VPN session tracing and downstream access logs to determine
+if the attacker moved to other systems after gaining VPN access.
+
+Data access/exfil? (Y/N, details)
+Unknown — no evidence yet; need application access logs, file transfer logs, and
+network traffic analysis for the VPN session to determine what was accessed.
+
+Persistence or backdoor? (Y/N, details)
+Unknown — check for new credentials, SSH keys, scheduled tasks, or backdoor 
+installations on endpoints if any were accessed during the VPN session.
+
+
+7) Assessment
+-------------
+Severity (updated):
+High — successful authentication after rapid failures from unusual geographic 
+location with no MFA evidence suggests potential account compromise.
+
+Confidence (low/med/high) and why:
+Medium-High — clear fail→success pattern and geographic anomaly provide strong 
+indicators of compromise; final confirmation pending user verification and MFA 
+status review.
+
+Is this true positive? (Y/N and evidence)
+Likely true positive (potential account compromise) unless user validates the 
+activity as legitimate travel and MFA can be confirmed as working properly.
+
+Blast radius (who/what affected):
+Potential network-wide access via VPN; actual impact depends on what systems 
+and data were accessed post-login (pending session/activity review and privilege 
+level of the compromised account).
+
+
+8) Containment & Eradication (what to do now)
+----------------------------------------------
+Immediate containment steps:
+[TO BE FILLED IN NEXT STEP]
+
+Longer-term fixes:
+[TO BE FILLED IN NEXT STEP]
+
+Owner/responsible team:
+[TO BE FILLED IN NEXT STEP]
+
+
+9) Recovery & Monitoring
+-------------------------
+Systems/accounts to restore or re-issue:
+[TO BE FILLED IN NEXT STEP]
+
+Monitoring to keep in place:
+[TO BE FILLED IN NEXT STEP]
+
+Detection gaps discovered:
+[TO BE FILLED IN NEXT STEP]
+
+
+10) Communication
+-----------------
+Who to notify (internal):
+[TO BE FILLED IN NEXT STEP]
+
+External comms (if any):
+[TO BE FILLED IN NEXT STEP]
+
+Ticket/Case ID:
+[TO BE FILLED IN NEXT STEP]
+
+
+11) Lessons Learned
+-------------------
+What worked:
+[TO BE FILLED IN NEXT STEP]
+
+What failed or was slow:
+[TO BE FILLED IN NEXT STEP]
+
+Playbook updates needed:
+[TO BE FILLED IN NEXT STEP]
+
+New detection ideas:
+[TO BE FILLED IN NEXT STEP]
+
+=== END OF INVESTIGATION ===
