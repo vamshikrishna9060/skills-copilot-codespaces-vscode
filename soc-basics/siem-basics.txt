@@ -1,0 +1,25 @@
+SOC-1 Lab 1.0 – SIEM Basics
+
+1. What is a SIEM?
+A SIEM (Security Information and Event Management) system collects, stores, and analyzes logs from multiple sources.
+
+2. Why SIEM is important in SOC
+SIEM helps SOC analysts detect threats by correlating events across systems.
+
+3. Example log sources
+- Firewall logs
+- Authentication logs
+- Endpoint logs
+- Application logs
+
+4. What is log correlation?
+Log correlation means linking multiple related events to identify suspicious activity.
+
+5. Example correlation
+- Multiple failed logins
+- Followed by a successful login
+- From the same IP
+→ Possible brute-force attack
+
+6. One thing I learned
+SIEM turns raw logs into actionable security alerts.

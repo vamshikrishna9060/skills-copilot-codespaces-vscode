@@ -1,0 +1,27 @@
+SOC Lab 0.3 – SSH Attack Observation
+
+1. What is an SSH brute force attack?
+An SSH brute force attack is when an attacker repeatedly tries different passwords to gain unauthorized access to a system via SSH.
+
+2. Typical log indicators
+- Multiple failed login attempts
+- Repeated attempts from the same IP
+- Short time gap between attempts
+- Attempts for common usernames (root, admin, ubuntu)
+
+3. Example log pattern
+Failed password for root from 192.168.1.100 port 54321 ssh2
+
+4. When does this become suspicious?
+- More than 5 failures from the same IP
+- Failures within a short time window
+- Attempts across multiple usernames
+
+5. SOC analyst action
+- Validate the IP address
+- Check if IP is internal or external
+- Look for successful login after failures
+- Escalate if brute force is confirmed
+
+6. One thing I learned
+Repeated failed logins are early warning signs of an attack.

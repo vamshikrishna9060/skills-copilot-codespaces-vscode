@@ -1,0 +1,26 @@
+SOC Lab 0.5 – Incident Triage
+
+1. What is incident triage?
+Incident triage is the process of prioritizing alerts based on risk and impact.
+
+2. Severity levels
+Low: Normal behavior or false positives
+Medium: Suspicious activity needing investigation
+High: Confirmed malicious activity
+Critical: Active breach or data exfiltration
+
+3. Example triage scenarios
+- Single failed login → Low
+- Multiple failed logins from one IP → Medium
+- Malware detected on endpoint → High
+- Data exfiltration detected → Critical
+
+4. SOC analyst actions
+Low: Document and monitor
+Medium: Investigate logs and context
+High: Escalate to Tier-2
+Critical: Trigger incident response immediately
+
+5. One thing I learned
+Correct triage prevents panic and protects the organization.
+

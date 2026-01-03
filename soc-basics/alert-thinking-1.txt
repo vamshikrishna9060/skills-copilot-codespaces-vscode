@@ -1,0 +1,20 @@
+SOC Lab 0.2 – Alert Thinking
+
+1. What is an alert?
+An alert is a notification generated when log data matches suspicious rules or known attack patterns.
+
+2. Example of log vs alert
+Log: Failed SSH login from IP 10.0.0.5
+Alert: Multiple failed SSH logins detected from same IP (possible brute force)
+
+3. Why SOC analysts trust logs more than alerts
+Alerts can be false positives. Logs show the full truth and context.
+
+4. What a SOC analyst does after receiving an alert
+- Validate the alert
+- Check related logs
+- Decide if it is malicious or benign
+- Escalate if required
+
+5. One thing I learned
+Alerts are starting points, not conclusions.

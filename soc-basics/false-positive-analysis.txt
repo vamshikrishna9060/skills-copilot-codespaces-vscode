@@ -1,0 +1,28 @@
+SOC Lab 0.4 – False Positive Analysis
+
+1. What is a false positive?
+A false positive is an alert that looks suspicious but is actually legitimate activity.
+
+2. Common false positives in SOC
+- Users mistyping passwords
+- Scheduled system scans
+- Backup jobs accessing many files
+- Developers logging in from new IPs
+
+3. Example scenario
+A user fails login 3 times and then succeeds.
+This is likely a typo, not an attack.
+
+4. How SOC analysts reduce false positives
+- Check user behavior history
+- Correlate with time, IP, and success logs
+- Verify business context
+- Suppress known benign patterns
+
+5. Why false positives are dangerous
+- Alert fatigue
+- Missed real attacks
+- Wasted analyst time
+
+6. One thing I learned
+Not every alert is an incident; investigation determines reality.
